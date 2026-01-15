@@ -1,0 +1,266 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+/* Base styles */
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Custom gradients */
+.bg-gradient-custom {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-hero {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 50%, #f0e6fa 100%);
+}
+
+/* Card gradients */
+.card-gradient-1 {
+  background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+}
+
+.card-gradient-2 {
+  background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+}
+
+.card-gradient-3 {
+  background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.card-gradient-4 {
+  background: linear-gradient(145deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.card-gradient-5 {
+  background: linear-gradient(145deg, #fa709a 0%, #fee140 100%);
+}
+
+/* Floating label input */
+.floating-label {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  background: white;
+  padding: 0 4px;
+}
+
+.input-field:focus+.floating-label,
+.input-field:not(:placeholder-shown)+.floating-label {
+  top: 0;
+  font-size: 12px;
+  color: #4f46e5;
+}
+
+/* Path/Roadmap nodes */
+.node-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.node-completed {
+  background: #10b981;
+  color: white;
+  border-bottom: 8px solid #059669;
+}
+
+.node-active {
+  background: #6366f1;
+  color: white;
+  border-bottom: 8px solid #4f46e5;
+  animation: pulse 2s infinite;
+}
+
+.node-locked {
+  background: #e5e7eb;
+  color: #9ca3af;
+  border-bottom: 8px solid #d1d5db;
+  cursor: not-allowed;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 15px rgba(99, 102, 241, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+/* Theme support */
+[data-theme="dark"] {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --text-primary: #ffffff;
+  --text-secondary: #a0aec0;
+}
+
+[data-theme="dark"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+[data-theme="neon-purple"] {
+  --accent: #a855f7;
+}
+
+[data-theme="neon-green"] {
+  --accent: #22c55e;
+}
+
+[data-theme="neon-blue"] {
+  --accent: #0ea5e9;
+}
+
+/* Safe area for mobile */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Choice card styles */
+.choice-card {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid #e5e7eb;
+}
+
+.choice-card:hover {
+  border-color: #a5b4fc;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15);
+}
+
+.choice-card.selected {
+  border-color: #4f46e5;
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.25);
+}
+
+/* Step card animation */
+.step-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-card:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+/* Connector line for steps */
+.connector-line {
+  position: relative;
+}
+
+.connector-line::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -24px;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+  .connector-line::after {
+    display: none;
+  }
+}
+
+/* Animations from step 124 */
+@keyframes slide-in {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
