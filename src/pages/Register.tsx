@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import type { RegisterFormData, Maktab } from '../types';
+import type { Maktab } from '../types';
 
 // Goal step info
 const goalStepInfo = {

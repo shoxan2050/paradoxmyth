@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
-import { useAuth } from '../hooks/useAuth';
+
 
 const ResultPage: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -12,7 +12,6 @@ const ResultPage: React.FC = () => {
     const total = searchParams.get('total');
     const showConfetti = searchParams.get('confetti') === '1';
 
-    const { user } = useAuth();
     const navigate = useNavigate();
     const [hasWrongQuestions, setHasWrongQuestions] = useState(false);
 

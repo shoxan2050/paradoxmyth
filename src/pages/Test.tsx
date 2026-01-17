@@ -13,7 +13,7 @@ const TestPage: React.FC = () => {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
-    const [test, setTest] = useState<Test | null>(null);
+    const [, setTest] = useState<Test | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentIdx, setCurrentIdx] = useState(0);
     const [userAnswers, setUserAnswers] = useState<(number | null)[]>([]);
@@ -30,7 +30,7 @@ const TestPage: React.FC = () => {
     const [isCorrect, setIsCorrect] = useState(false);
 
     // Refs for timer and cleaning up
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const initTest = useCallback(async () => {
         if (!user || !subjectId || !lessonId) return;
