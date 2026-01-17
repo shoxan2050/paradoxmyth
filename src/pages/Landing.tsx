@@ -261,11 +261,6 @@ const Landing: React.FC = () => {
                             <ul className="space-y-2 text-gray-400">
                                 <li><Link to="/contacts" className="text-green-400 hover:text-green-300 transition">Qo'llab-quvvatlash xizmati portal</Link></li>
                             </ul>
-                            <div className="mt-6 space-y-2 text-gray-400">
-                                <p className="text-sm">📞 +998 70 116 38 04</p>
-                                <p className="text-sm">📞 +998 50 100 41 75</p>
-                                <p className="text-sm">✉️ boburjonbaratov97@gmail.com</p>
-                            </div>
                         </div>
                     </div>
                 </div>
