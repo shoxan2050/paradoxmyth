@@ -61,7 +61,7 @@ const Landing: React.FC = () => {
 
                     <h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-gray-900 leading-tight font-poppins">
                         Bilim olish endi <br className="hidden sm:block" />
-                        <span className="gradient-text">qiziqarli va oson</span>
+                        <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">qiziqarli va oson</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
                         Duolingo uslubidagi roadmap, interaktiv testlar va natijalarni kuzatish tizimi bilan yangi marralarni zabt eting.
