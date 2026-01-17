@@ -1,8 +1,18 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Landing: React.FC = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const navigate = useNavigate();
+
+    // Auto-redirect: returning visitors go to login
+    useEffect(() => {
+        if (localStorage.getItem('edu_visited')) {
+            navigate('/login');
+        } else {
+            localStorage.setItem('edu_visited', 'true');
+        }
+    }, [navigate]);
 
     return (
         <div className="bg-gray-50 text-gray-900">
