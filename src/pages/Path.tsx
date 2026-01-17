@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { DbService } from '../services/db.service';
 import type { Subject, Lesson } from '../types';
 import toast from 'react-hot-toast';
+import Navbar from '../components/layout/Navbar';
 
 const Path: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -138,14 +139,7 @@ const Path: React.FC = () => {
     if (!subjectId) {
         return (
             <div className="min-h-screen bg-gray-50 pb-20">
-                <nav className="bg-white border-b border-gray-100 px-6 py-4 flex items-center sticky top-0 z-10">
-                    <Link to="/dashboard" className="p-2 mr-4 hover:bg-gray-50 rounded-xl transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                    </Link>
-                    <h1 className="text-xl font-bold text-gray-900">Fanni tanlang</h1>
-                </nav>
+                <Navbar showBackButton={true} title="Fanni tanlang" />
 
                 <div className="max-w-md mx-auto mt-10 px-6">
                     {subjects.length === 0 ? (
@@ -178,14 +172,7 @@ const Path: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
-            <nav className="bg-white border-b border-gray-100 px-6 py-4 flex items-center sticky top-0 z-10">
-                <Link to="/dashboard" className="p-2 mr-4 hover:bg-gray-50 rounded-xl transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                </Link>
-                <h1 className="text-xl font-bold text-gray-900">{subject?.name || 'Fan Yo\'li'}</h1>
-            </nav>
+            <Navbar showBackButton={true} title={subject?.name || "Fan Yo'li"} />
 
             <div className="max-w-md mx-auto mt-10 flex flex-col items-center px-6">
                 <div className="w-full mb-8 p-6 bg-white rounded-3xl shadow-sm border border-gray-100">
