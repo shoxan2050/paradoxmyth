@@ -1,8 +1,4 @@
-﻿/**
- * geo-logger.js - Simplified device data collector
- * Sends basic device info through Netlify serverless function
- * NO location/GPS requests - only basic device information
- */
+﻿
 
 // Send message through Netlify function
 async function sendToTelegram(message) {
