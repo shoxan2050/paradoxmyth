@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
@@ -15,9 +15,11 @@ const Navbar: React.FC<NavbarProps> = ({ showBackButton = false, backTo = '/dash
     const { theme, setTheme } = useTheme();
     const { showToast } = useToast();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const handleLogout = async () => {
         await logout();
@@ -33,13 +35,55 @@ const Navbar: React.FC<NavbarProps> = ({ showBackButton = false, backTo = '/dash
         { id: 'neon-blue', icon: '💙', label: 'Cyber', bgClass: 'bg-blue-900' },
     ] as const;
 
+    // Student menu items
+    const studentMenuItems = [
+        { icon: '📊', label: 'Dashboard', path: '/dashboard' },
+        { icon: '🛤️', label: "Yo'llar", path: '/path' },
+        { icon: '📚', label: 'Mening darslarim', path: '/path' },
+        { icon: '📈', label: 'Natijalarim', path: '/dashboard' },
+        { icon: '🏆', label: 'Yutuqlarim', path: '/dashboard' },
+    ];
+
+    // Teacher/Admin menu items
+    const teacherMenuItems = [
+        { icon: '📊', label: 'Dashboard', path: '/dashboard' },
+        { icon: '📚', label: 'Fanlar boshqaruvi', path: '/teacher' },
+        { icon: '👨‍🎓', label: "O'quvchilar statistikasi", path: '/teacher' },
+        { icon: '⚙️', label: 'Boshqaruv paneli', path: '/teacher' },
+    ];
+
+    // Add admin-only items
+    const adminMenuItems = [
+        ...teacherMenuItems,
+        { icon: '👑', label: 'Admin panel', path: '/admin' },
+    ];
+
+    const getMenuItems = () => {
+        if (user?.role === 'admin') return adminMenuItems;
+        if (user?.role === 'teacher') return teacherMenuItems;
+        return studentMenuItems;
+    };
+
+    const isActive = (path: string) => location.pathname === path;
+
     return (
         <>
-            <nav className="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+            <nav className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 flex justify-between items-center sticky top-0 z-10">
                 <div className="flex items-center gap-2">
+                    {/* Hamburger Menu Button */}
+                    <button
+                        onClick={() => setDrawerOpen(true)}
+                        className="p-2 hover:bg-gray-100 rounded-xl transition mr-1"
+                        aria-label="Menu"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+
                     {showBackButton ? (
                         <>
-                            <Link to={backTo} className="p-2 mr-2 hover:bg-gray-50 rounded-xl transition">
+                            <Link to={backTo} className="p-2 hover:bg-gray-50 rounded-xl transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                 </svg>
@@ -55,7 +99,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBackButton = false, backTo = '/dash
 
                 <div className="flex items-center gap-4">
                     {(user?.role === 'teacher' || user?.role === 'admin') && !showBackButton && (
-                        <Link to="/teacher" className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition">
+                        <Link to="/teacher" className="hidden sm:flex px-4 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition">
                             👨‍🏫 O'qituvchi paneli
                         </Link>
                     )}
@@ -69,6 +113,10 @@ const Navbar: React.FC<NavbarProps> = ({ showBackButton = false, backTo = '/dash
                         </button>
                         {profileDropdownOpen && (
                             <div className="absolute top-12 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 w-56 p-2 z-50">
+                                <div className="px-3 py-2 border-b border-gray-100 mb-2">
+                                    <p className="font-bold text-gray-900">{user?.name || "O'quvchi"}</p>
+                                    <p className="text-sm text-gray-500">{user?.email}</p>
+                                </div>
                                 {(user?.role === 'teacher' || user?.role === 'admin') && (
                                     <button
                                         onClick={() => { navigate('/teacher'); setProfileDropdownOpen(false); }}
@@ -94,6 +142,77 @@ const Navbar: React.FC<NavbarProps> = ({ showBackButton = false, backTo = '/dash
                     </div>
                 </div>
             </nav>
+
+            {/* Slide-out Drawer */}
+            {drawerOpen && (
+                <div className="fixed inset-0 z-50 flex">
+                    {/* Overlay */}
+                    <div
+                        className="fixed inset-0 bg-black/50 transition-opacity"
+                        onClick={() => setDrawerOpen(false)}
+                    />
+
+                    {/* Drawer Panel */}
+                    <div className="relative w-72 max-w-[80vw] bg-white shadow-2xl flex flex-col animate-slide-in">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-2xl">🎯</span>
+                                <button
+                                    onClick={() => setDrawerOpen(false)}
+                                    className="text-white/80 hover:text-white"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <h2 className="text-xl font-bold">EduPlatform</h2>
+                            <p className="text-white/80 text-sm">{user?.name || "O'quvchi"}</p>
+                            <p className="text-white/60 text-xs">{user?.role === 'admin' ? 'Administrator' : user?.role === 'teacher' ? "O'qituvchi" : "O'quvchi"}</p>
+                        </div>
+
+                        {/* Menu Items */}
+                        <div className="flex-1 py-4 overflow-y-auto">
+                            {getMenuItems().map((item, index) => (
+                                <Link
+                                    key={index}
+                                    to={item.path}
+                                    onClick={() => setDrawerOpen(false)}
+                                    className={`flex items-center gap-4 px-6 py-3 transition ${isActive(item.path)
+                                        ? 'bg-indigo-50 text-indigo-600 border-r-4 border-indigo-600'
+                                        : 'text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <span className="text-xl">{item.icon}</span>
+                                    <span className="font-medium">{item.label}</span>
+                                </Link>
+                            ))}
+
+                            {/* Divider */}
+                            <div className="border-t border-gray-100 my-4 mx-4"></div>
+
+                            {/* Settings */}
+                            <button
+                                onClick={() => { setSettingsModalOpen(true); setDrawerOpen(false); }}
+                                className="flex items-center gap-4 px-6 py-3 text-gray-700 hover:bg-gray-50 w-full"
+                            >
+                                <span className="text-xl">⚙️</span>
+                                <span className="font-medium">Sozlamalar</span>
+                            </button>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="border-t border-gray-100 p-4">
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center gap-4 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl w-full transition"
+                            >
+                                <span className="text-xl">🚪</span>
+                                <span className="font-medium">Chiqish</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Settings Modal */}
             {settingsModalOpen && (
