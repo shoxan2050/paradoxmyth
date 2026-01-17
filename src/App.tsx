@@ -15,6 +15,7 @@ import Test from './pages/Test';
 import Result from './pages/Result';
 import Teacher from './pages/Teacher';
 import Admin from './pages/Admin';
+import Contacts from './pages/Contacts';
 
 function App() {
   console.log('App: Rendering full application');
@@ -27,6 +28,7 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/contacts" element={<Contacts />} />
 
             {/* Protected Routes - All authenticated users */}
             <Route element={<ProtectedRoute />}>

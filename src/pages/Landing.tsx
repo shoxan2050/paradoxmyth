@@ -197,20 +197,74 @@ const Landing: React.FC = () => {
             </section>
 
             {/* Footer */}
-            <footer className="py-12 bg-gray-900 text-gray-400">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                        <div className="flex items-center gap-2 text-2xl font-bold text-white">
-                            <span className="text-3xl">🎯</span> EduPlatform
+            <footer className="bg-gray-900 text-white">
+                {/* Main Footer Content */}
+                <div className="max-w-7xl mx-auto px-4 py-12">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        {/* Tashkilot haqida */}
+                        <div>
+                            <h3 className="text-lg font-bold mb-4">Tashkilot haqida</h3>
+                            <ul className="space-y-2 text-gray-400">
+                                <li><span className="hover:text-white cursor-pointer transition">Biz haqimizda</span></li>
+                                <li><span className="hover:text-white cursor-pointer transition">Yangiliklar</span></li>
+                                <li><Link to="/contacts" className="hover:text-white transition">Aloqa uchun ma'lumotlar</Link></li>
+                            </ul>
+                            {/* Social Icons */}
+                            <div className="flex gap-3 mt-4">
+                                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-600 transition">
+                                    <span className="text-sm">f</span>
+                                </a>
+                                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-600 transition">
+                                    <span className="text-sm">📷</span>
+                                </a>
+                                <a href="https://t.me/jun1or_person" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-600 transition">
+                                    <span className="text-sm">✈️</span>
+                                </a>
+                                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-600 transition">
+                                    <span className="text-sm">▶</span>
+                                </a>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-8">
-                            <a href="#features" className="hover:text-white transition">Imkoniyatlar</a>
-                            <a href="#how-it-works" className="hover:text-white transition">Qanday ishlaydi?</a>
-                            <a href="#testimonials" className="hover:text-white transition">Fikrlar</a>
+
+                        {/* Imkoniyatlar */}
+                        <div>
+                            <h3 className="text-lg font-bold mb-4">Imkoniyatlar</h3>
+                            <ul className="space-y-2 text-gray-400">
+                                <li><span className="hover:text-white cursor-pointer transition">O'qituvchilarga</span></li>
+                                <li><span className="hover:text-white cursor-pointer transition">Ota-onalarga</span></li>
+                                <li><span className="hover:text-white cursor-pointer transition">O'quvchilarga</span></li>
+                                <li><span className="hover:text-white cursor-pointer transition">Davlat organlariga</span></li>
+                            </ul>
                         </div>
-                        <div className="text-sm">
-                            © 2026 EduPlatform. Barcha huquqlar himoyalangan.
+
+                        {/* Hamkorlarga */}
+                        <div>
+                            <h3 className="text-lg font-bold mb-4">Hamkorlarga</h3>
+                            <ul className="space-y-2 text-gray-400">
+                                <li><Link to="/contacts" className="hover:text-white transition">Hamkorlik dasturlari</Link></li>
+                            </ul>
                         </div>
+
+                        {/* Qo'llab-quvvatlash */}
+                        <div>
+                            <h3 className="text-lg font-bold mb-4">Qo'llab-quvvatlash</h3>
+                            <ul className="space-y-2 text-gray-400">
+                                <li><Link to="/contacts" className="text-green-400 hover:text-green-300 transition">Qo'llab-quvvatlash xizmati portal</Link></li>
+                            </ul>
+                            <div className="mt-6 space-y-2 text-gray-400">
+                                <p className="text-sm">📞 +998 70 116 38 04</p>
+                                <p className="text-sm">📞 +998 50 100 41 75</p>
+                                <p className="text-sm">✉️ boburjonbaratov97@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Bottom Bar */}
+                <div className="border-t border-gray-800 py-4">
+                    <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm">
+                        <span>Foydalanuvchining shartnomasi</span>
+                        <span>© 2026 EduPlatform. Barcha huquqlar himoyalangan.</span>
                     </div>
                 </div>
             </footer>
