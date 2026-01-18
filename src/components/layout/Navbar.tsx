@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
+import AIChat from '../common/AIChat';
 
 interface NavbarProps {
     showBackButton?: boolean;
@@ -20,6 +21,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBackButton = false, backTo = '/dash
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [settingsModalOpen, setSettingsModalOpen] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [aiChatOpen, setAiChatOpen] = useState(false);
 
     const handleLogout = async () => {
         await logout();
@@ -198,6 +200,16 @@ const Navbar: React.FC<NavbarProps> = ({ showBackButton = false, backTo = '/dash
                                 <span className="text-xl">⚙️</span>
                                 <span className="font-medium">Sozlamalar</span>
                             </button>
+
+                            {/* AI Chat Button in Hamburger Menu */}
+                            <button
+                                onClick={() => { setAiChatOpen(true); setDrawerOpen(false); }}
+                                className="flex items-center gap-4 px-6 py-3 text-gray-700 hover:bg-gray-50 w-full bg-gradient-to-r from-indigo-50 to-purple-50"
+                            >
+                                <span className="text-xl">🤖</span>
+                                <span className="font-medium">AI Yordamchi</span>
+                                <span className="ml-auto px-2 py-0.5 bg-indigo-600 text-white text-xs rounded-full">Yangi</span>
+                            </button>
                         </div>
 
                         {/* Footer */}
@@ -264,6 +276,9 @@ const Navbar: React.FC<NavbarProps> = ({ showBackButton = false, backTo = '/dash
                     onClick={() => setProfileDropdownOpen(false)}
                 />
             )}
+
+            {/* AI Chat Component */}
+            <AIChat isOpen={aiChatOpen} onClose={() => setAiChatOpen(false)} />
         </>
     );
 };

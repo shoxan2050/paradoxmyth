@@ -47,7 +47,14 @@ export const registerUser = async (data: RegisterFormData): Promise<User> => {
             schedule: data.schedule || null,
             streak: 0,
             lastActive: null,
-            progress: {}
+            progress: {},
+            // Adaptive learning fields
+            knowledgeLevels: data.knowledgeLevels || {},
+            initialAssessment: data.assessmentResults ? {
+                completedAt: Date.now(),
+                results: data.assessmentResults
+            } : null,
+            adaptiveTests: {}
         };
 
         await set(ref(db, 'users/' + firebaseUser.uid), userData);
@@ -58,6 +65,8 @@ export const registerUser = async (data: RegisterFormData): Promise<User> => {
         throw new Error(getFriendlyErrorMessage(error.code));
     }
 };
+
+
 
 // Login user
 export const loginUser = async (data: LoginFormData): Promise<User> => {

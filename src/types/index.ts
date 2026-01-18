@@ -15,6 +15,13 @@ export interface User {
     streak: number;
     lastActive: string | null;
     progress: Record<string, Record<string, number>>;
+    // Adaptive learning fields
+    knowledgeLevels?: Record<string, 'beginner' | 'intermediate' | 'advanced'>;
+    initialAssessment?: {
+        completedAt: number;
+        results: Record<string, { score: number; level: string }>;
+    } | null;
+    adaptiveTests?: Record<string, any>;
 }
 
 export interface AuthState {
@@ -92,6 +99,9 @@ export interface RegisterFormData {
     level?: 'beginner' | 'intermediate' | 'advanced';
     schedule?: number;
     role: 'student' | 'teacher';
+    // Adaptive learning fields
+    knowledgeLevels?: Record<string, 'beginner' | 'intermediate' | 'advanced'>;
+    assessmentResults?: Record<string, { score: number; level: string }>;
 }
 
 // Login form data

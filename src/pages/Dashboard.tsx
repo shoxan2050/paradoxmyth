@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ref, get } from 'firebase/database';
 import { db } from '../services/firebase';
+import { AdaptiveService } from '../services/adaptive.service';
 import type { Subject } from '../types';
 import Navbar from '../components/layout/Navbar';
 import BottomNav from '../components/layout/BottomNav';
+import { AIChatButton } from '../components/common/AIChat';
 
 const Dashboard: React.FC = () => {
     const { user } = useAuth();
@@ -13,10 +15,38 @@ const Dashboard: React.FC = () => {
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [loading, setLoading] = useState(true);
     const [progress, setProgress] = useState(0);
+    const [subjectsData, setSubjectsData] = useState<Record<string, any>>({});
 
     useEffect(() => {
         loadSubjects();
     }, [user]);
+
+    // Background test generation
+    useEffect(() => {
+        if (user && Object.keys(subjectsData).length > 0) {
+            const triggerBackgroundGeneration = async () => {
+                try {
+                    console.log('[Dashboard] Triggering background test generation...');
+                    const existingTests = await AdaptiveService.getAllAdaptiveTests(user.uid);
+                    const testCount = Object.keys(existingTests).length;
+
+                    if (testCount < 10) {
+                        setTimeout(() => {
+                            AdaptiveService.backgroundGenerateTests(
+                                user.uid,
+                                subjectsData,
+                                parseInt(user.sinf || '7')
+                            );
+                        }, 3000);
+                    }
+                } catch (e) {
+                    console.error('[Dashboard] Background generation error:', e);
+                }
+            };
+            triggerBackgroundGeneration();
+        }
+    }, [user, subjectsData]);
+
 
     const loadSubjects = async () => {
         if (!user) return;
@@ -42,6 +72,17 @@ const Dashboard: React.FC = () => {
                     }));
 
                 setSubjects(subjectsList);
+
+                // Store subjects data for background generation
+                const filteredData: Record<string, any> = {};
+                Object.entries(data).forEach(([id, val]: [string, any]) => {
+                    const classes = val.classes || [];
+                    const sClass = parseInt(val.class || '0');
+                    if (classes.includes(userSinf) || sClass === userSinf) {
+                        filteredData[id] = val;
+                    }
+                });
+                setSubjectsData(filteredData);
 
                 // Calculate real progress
                 let totalLessons = 0;
@@ -222,6 +263,7 @@ const Dashboard: React.FC = () => {
             </main>
 
             <BottomNav />
+            <AIChatButton />
         </div>
     );
 };
