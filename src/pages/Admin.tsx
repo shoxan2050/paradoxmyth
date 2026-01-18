@@ -4,6 +4,7 @@ import { DbService } from '../services/db.service';
 import { Link } from 'react-router-dom';
 import type { Subject, User } from '../types';
 import toast from 'react-hot-toast';
+import { AIChatButton } from '../components/common/AIChat';
 
 const Admin: React.FC = () => {
     const { user, logout } = useAuth();
@@ -297,6 +298,7 @@ const Admin: React.FC = () => {
                     </>
                 )}
             </main>
+            <AIChatButton />
         </div>
     );
 };

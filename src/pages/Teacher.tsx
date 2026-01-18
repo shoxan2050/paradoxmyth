@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import type { Subject, User } from '../types';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
+import { AIChatButton } from '../components/common/AIChat';
 
 const SUBJECTS_BY_CLASS: Record<string, string[]> = {
     "1": ["Ona tili va o‘qish savodxonligi", "Matematika", "Atrofimizdagi olam", "Tasviriy san’at", "Musiqa", "Texnologiya (mehnat)", "Jismoniy tarbiya"],
@@ -719,6 +720,7 @@ const Teacher: React.FC = () => {
                     </div>
                 </div>
             )}
+            <AIChatButton />
         </div>
     );
 };
