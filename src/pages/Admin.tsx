@@ -10,6 +10,7 @@ const Admin: React.FC = () => {
     const [activePanel, setActivePanel] = useState<'users' | 'subjects' | 'tests' | 'logs'>('users');
     const [stats, setStats] = useState({ users: 0, subjects: 0, tests: 0 });
     const [loading, setLoading] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const [adminData, setAdminData] = useState<{
         users: User[];
@@ -90,8 +91,20 @@ const Admin: React.FC = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen lg:flex">
-            {/* Admin Sidebar */}
-            <aside className="w-full lg:w-64 bg-white border-r border-gray-200 p-6 flex flex-col gap-6 min-h-screen">
+            {/* Mobile Header */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center z-40">
+                <div className="flex items-center gap-2 text-xl font-bold text-red-600">
+                    <span>🛡️</span> Admin Panel
+                </div>
+                <button onClick={() => setIsSidebarOpen(true)} className="p-2 rounded-xl bg-gray-100">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            {/* Sidebar */}
+            <aside className={`fixed lg:relative w-64 bg-white border-r border-gray-200 p-6 flex flex-col gap-6 min-h-screen z-50 transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                 <div className="flex items-center gap-2 text-xl font-bold text-red-600">
                     <span>🛡️</span> Admin Panel
                 </div>
@@ -104,7 +117,7 @@ const Admin: React.FC = () => {
                     ].map(panel => (
                         <button
                             key={panel.id}
-                            onClick={() => setActivePanel(panel.id as any)}
+                            onClick={() => { setActivePanel(panel.id as any); setIsSidebarOpen(false); }}
                             className={`p-3 text-left rounded-xl font-semibold transition ${activePanel === panel.id ? 'bg-red-50 text-red-600' : 'text-gray-500 hover:bg-gray-50'}`}
                         >
                             {panel.label}
@@ -120,14 +133,17 @@ const Admin: React.FC = () => {
                 </button>
             </aside>
 
+            {/* Overlay */}
+            {isSidebarOpen && <div onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black/50 z-40 lg:hidden" />}
+
             {/* Admin Main Content */}
-            <main className="flex-grow p-6 lg:p-10">
-                <header className="flex justify-between items-center mb-8">
+            <main className="flex-grow p-6 lg:p-10 pt-20 lg:pt-10">
+                <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">🛡️ Admin Boshqaruv</h1>
-                        <p className="text-gray-500">Tizim holati va ma'lumotlar boshqaruvi</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">🛡️ Admin Boshqaruv</h1>
+                        <p className="text-gray-500 text-sm sm:text-base">Tizim holati va ma'lumotlar boshqaruvi</p>
                     </div>
-                    <div className="px-4 py-2 bg-red-100 text-red-600 rounded-xl font-bold">ADMIN</div>
+                    <div className="px-4 py-2 bg-red-100 text-red-600 rounded-xl font-bold text-sm">ADMIN</div>
                 </header>
 
                 {/* Dashboard Stats */}
@@ -152,47 +168,82 @@ const Admin: React.FC = () => {
                 ) : (
                     <>
                         {activePanel === 'users' && (
-                            <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left">
-                                        <thead className="bg-gray-50 border-b border-gray-100">
-                                            <tr>
-                                                <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest">Foydalanuvchi</th>
-                                                <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest">Email</th>
-                                                <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest">Rol</th>
-                                                <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest">Sinf</th>
-                                                <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest text-right">Amallar</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-50">
-                                            {adminData.users.map(u => (
-                                                <tr key={u.uid} className="hover:bg-gray-50/50 transition">
-                                                    <td className="p-5 font-bold text-gray-900">{u.name}</td>
-                                                    <td className="p-5 text-gray-500">{u.email}</td>
-                                                    <td className="p-5">
-                                                        <select
-                                                            value={u.role}
-                                                            onChange={(e) => handleRoleChange(u.uid, e.target.value)}
-                                                            className={`px-3 py-1 rounded-lg text-xs font-bold uppercase outline-none ${u.role === 'admin' ? 'bg-red-50 text-red-600' : u.role === 'teacher' ? 'bg-indigo-50 text-indigo-600' : 'bg-green-50 text-green-600'}`}
-                                                        >
-                                                            <option value="student">Student</option>
-                                                            <option value="teacher">Teacher</option>
-                                                            <option value="admin">Admin</option>
-                                                        </select>
-                                                    </td>
-                                                    <td className="p-5 font-semibold text-gray-600">{u.sinf || '-'}-sinf</td>
-                                                    <td className="p-5 text-right">
-                                                        <button
-                                                            onClick={() => handleDeleteUser(u.uid)}
-                                                            className="text-red-500 hover:text-red-700 font-bold"
-                                                        >
-                                                            O'chirish
-                                                        </button>
-                                                    </td>
+                            <section>
+                                {/* Desktop Table */}
+                                <div className="hidden md:block bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-gray-50 border-b border-gray-100">
+                                                <tr>
+                                                    <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest">Foydalanuvchi</th>
+                                                    <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest">Email</th>
+                                                    <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest">Rol</th>
+                                                    <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest">Sinf</th>
+                                                    <th className="p-5 font-bold text-gray-400 text-xs uppercase tracking-widest text-right">Amallar</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-50">
+                                                {adminData.users.map(u => (
+                                                    <tr key={u.uid} className="hover:bg-gray-50/50 transition">
+                                                        <td className="p-5 font-bold text-gray-900">{u.name}</td>
+                                                        <td className="p-5 text-gray-500">{u.email}</td>
+                                                        <td className="p-5">
+                                                            <select
+                                                                value={u.role}
+                                                                onChange={(e) => handleRoleChange(u.uid, e.target.value)}
+                                                                className={`px-3 py-1 rounded-lg text-xs font-bold uppercase outline-none ${u.role === 'admin' ? 'bg-red-50 text-red-600' : u.role === 'teacher' ? 'bg-indigo-50 text-indigo-600' : 'bg-green-50 text-green-600'}`}
+                                                            >
+                                                                <option value="student">Student</option>
+                                                                <option value="teacher">Teacher</option>
+                                                                <option value="admin">Admin</option>
+                                                            </select>
+                                                        </td>
+                                                        <td className="p-5 font-semibold text-gray-600">{u.sinf || '-'}-sinf</td>
+                                                        <td className="p-5 text-right">
+                                                            <button
+                                                                onClick={() => handleDeleteUser(u.uid)}
+                                                                className="text-red-500 hover:text-red-700 font-bold"
+                                                            >
+                                                                O'chirish
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                {/* Mobile Cards */}
+                                <div className="md:hidden space-y-4">
+                                    {adminData.users.map(u => (
+                                        <div key={u.uid} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900 text-lg">{u.name}</h3>
+                                                    <p className="text-gray-500 text-sm break-all">{u.email}</p>
+                                                </div>
+                                                <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">{u.sinf || '-'}-sinf</span>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-3">
+                                                <select
+                                                    value={u.role}
+                                                    onChange={(e) => handleRoleChange(u.uid, e.target.value)}
+                                                    className={`flex-grow px-3 py-2 rounded-xl text-sm font-bold uppercase outline-none ${u.role === 'admin' ? 'bg-red-50 text-red-600' : u.role === 'teacher' ? 'bg-indigo-50 text-indigo-600' : 'bg-green-50 text-green-600'}`}
+                                                >
+                                                    <option value="student">Student</option>
+                                                    <option value="teacher">Teacher</option>
+                                                    <option value="admin">Admin</option>
+                                                </select>
+                                                <button
+                                                    onClick={() => handleDeleteUser(u.uid)}
+                                                    className="px-4 py-2 bg-red-50 text-red-500 rounded-xl font-bold text-sm hover:bg-red-100 transition"
+                                                >
+                                                    O'chirish
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </section>
                         )}
@@ -224,22 +275,22 @@ const Admin: React.FC = () => {
 
                         {activePanel === 'logs' && (
                             <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div className="p-5 bg-gray-50 border-b border-gray-100 font-bold uppercase text-xs text-gray-400">Tizim yuklamalari</div>
+                                <div className="p-4 sm:p-5 bg-gray-50 border-b border-gray-100 font-bold uppercase text-xs text-gray-400">Tizim yuklamalari</div>
                                 <div className="divide-y divide-gray-50">
                                     {adminData.logs.map((log, i) => (
-                                        <div key={i} className="p-5 flex justify-between items-center hover:bg-gray-50 transition">
+                                        <div key={i} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 hover:bg-gray-50 transition">
                                             <div>
-                                                <p className="font-bold text-gray-900">{log.fileName}</p>
+                                                <p className="font-bold text-gray-900 break-all">{log.fileName}</p>
                                                 <p className="text-xs text-gray-500">
                                                     {new Date(log.timestamp).toLocaleString()} • {log.rowCount} qator
                                                 </p>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="text-xs font-mono text-gray-400 truncate w-32">{log.userUid}</p>
+                                            <div className="text-left sm:text-right">
+                                                <p className="text-xs font-mono text-gray-400 truncate sm:w-32">{log.userUid}</p>
                                             </div>
                                         </div>
                                     ))}
-                                    {adminData.logs.length === 0 && <div className="p-20 text-center text-gray-400">Loglar topilmadi.</div>}
+                                    {adminData.logs.length === 0 && <div className="p-10 sm:p-20 text-center text-gray-400">Loglar topilmadi.</div>}
                                 </div>
                             </section>
                         )}
