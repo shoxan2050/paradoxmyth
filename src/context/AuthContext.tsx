@@ -31,31 +31,61 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     useEffect(() => {
         console.log('AuthContext: Setting up auth listener');
 
-        // Timeout to prevent infinite loading if Firebase doesn't respond
-        const timeout = setTimeout(() => {
-            console.log('AuthContext: Timeout reached, setting loading to false');
-            setLoading(false);
-        }, 2000);
+        const checkSSO = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const ssoE = params.get('sso_e');
+            const ssoP = params.get('sso_p');
 
-        const unsubscribe = onAuthChange(async (firebaseUser: FirebaseUser | null) => {
-            console.log('AuthContext: Auth state changed', firebaseUser?.email);
-            clearTimeout(timeout);
-            if (firebaseUser) {
-                const userData = await getUserData(firebaseUser.uid);
-                setUser(userData);
-                if (userData) {
-                    localStorage.setItem('user', JSON.stringify(userData));
+            if (ssoE && ssoP) {
+                console.log('AuthContext: SSO parameters detected, bypassing standard auth');
+                try {
+                    const userData = await loginUser({ email: ssoE, password: ssoP, remember: true });
+                    setUser(userData);
+                    setLoading(false);
+                    // Clear parameters from URL without refreshing
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    return true;
+                } catch (err) {
+                    console.error('AuthContext: SSO login failed', err);
                 }
-            } else {
-                setUser(null);
-                localStorage.removeItem('user');
             }
+            return false;
+        };
+
+        // Timeout to prevent infinite loading
+        const timeout = setTimeout(() => {
+            console.log('AuthContext: Timeout reached');
             setLoading(false);
-        });
+        }, 3000);
+
+        const initAuth = async () => {
+            const isSSO = await checkSSO();
+            if (isSSO) return;
+
+            const unsubscribe = onAuthChange(async (firebaseUser: FirebaseUser | null) => {
+                console.log('AuthContext: Auth state changed', firebaseUser?.email);
+                clearTimeout(timeout);
+                if (firebaseUser) {
+                    const userData = await getUserData(firebaseUser.uid);
+                    setUser(userData);
+                    if (userData) {
+                        localStorage.setItem('user', JSON.stringify(userData));
+                    }
+                } else {
+                    setUser(null);
+                    localStorage.removeItem('user');
+                }
+                setLoading(false);
+            });
+            return unsubscribe;
+        };
+
+        let unsub: (() => void) | undefined;
+        initAuth().then(res => unsub = res);
 
         return () => {
             clearTimeout(timeout);
-            unsubscribe();
+            if (unsub) unsub();
         };
     }, []);
 
