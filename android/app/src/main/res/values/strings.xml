@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">EduPlatform</string>
-    <string name="title_activity_main">EduPlatform</string>
-    <string name="package_name">app.eduplatform.uz</string>
-    <string name="custom_url_scheme">app.eduplatform.uz</string>
-</resources>
