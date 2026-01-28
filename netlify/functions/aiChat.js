@@ -52,7 +52,7 @@ export async function handler(event) {
         return { statusCode: 500, body: JSON.stringify({ error: "OpenRouter kaliti yo'q" }) };
     }
 
-    const MODEL = "xiaomi/mimo-v2-flash:free";
+    const MODEL = "arcee-ai/trinity-large-preview:free";
     const gradeLevel = grade || 7;
     const subjectContext = context || "umumiy";
 

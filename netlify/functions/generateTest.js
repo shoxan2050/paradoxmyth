@@ -66,7 +66,7 @@ export async function handler(event) {
         }
 
         // OpenRouter model - bepul va tez
-        const MODEL = "xiaomi/mimo-v2-flash:free";
+        const MODEL = "arcee-ai/trinity-large-preview:free";
 
         // --- Prompt Construction ---
         const prompt = `
