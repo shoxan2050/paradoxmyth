@@ -15,10 +15,9 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const [theme, setThemeState] = useState<Theme>(() => {
-        // Get saved theme from localStorage or default to 'light'
+        // Detect system theme
         if (typeof window !== 'undefined') {
-            const savedTheme = localStorage.getItem('theme') as Theme;
-            return savedTheme || 'light';
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         return 'light';
     });
@@ -26,16 +25,25 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     useEffect(() => {
         // Apply theme to document
         document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
     }, [theme]);
 
-    // Apply initial theme on mount
+    // Listen for system theme changes
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme') as Theme;
-        if (savedTheme) {
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            setThemeState(savedTheme);
-        }
+        if (typeof window === 'undefined') return;
+
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+        const handleChange = (e: MediaQueryListEvent) => {
+            setThemeState(e.matches ? 'dark' : 'light');
+        };
+
+        // Modern browsers
+        mediaQuery.addEventListener('change', handleChange);
+
+        // Initial sync
+        setThemeState(mediaQuery.matches ? 'dark' : 'light');
+
+        return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
     const setTheme = (newTheme: Theme) => {
