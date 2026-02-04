@@ -7,7 +7,8 @@ import {
     logoutUser,
     getCurrentUser,
     onAuthChange,
-    getUserData
+    getUserData,
+    signInWithGoogle
 } from '../services/auth.service';
 import type { User, LoginFormData, RegisterFormData } from '../types';
 
@@ -17,6 +18,7 @@ interface AuthContextType {
     error: string | null;
     login: (data: LoginFormData) => Promise<User>;
     register: (data: RegisterFormData) => Promise<User>;
+    loginWithGoogle: () => Promise<{ firebaseUser: FirebaseUser; userData: User | null }>;
     logout: () => Promise<void>;
     clearError: () => void;
 }
@@ -89,6 +91,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    const loginWithGoogle = async (): Promise<{ firebaseUser: FirebaseUser; userData: User | null }> => {
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await signInWithGoogle();
+            if (result.userData) {
+                setUser(result.userData);
+            }
+            return result;
+        } catch (err: any) {
+            setError(err.message);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const logout = async (): Promise<void> => {
         setLoading(true);
         try {
@@ -104,7 +123,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const clearError = () => setError(null);
 
     return (
-        <AuthContext.Provider value={{ user, loading, error, login, register, logout, clearError }}>
+        <AuthContext.Provider value={{ user, loading, error, login, register, loginWithGoogle, logout, clearError }}>
             {children}
         </AuthContext.Provider>
     );

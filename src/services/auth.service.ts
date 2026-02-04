@@ -5,7 +5,9 @@ import {
     setPersistence,
     browserLocalPersistence,
     browserSessionPersistence,
-    onAuthStateChanged
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { ref, set, update, get } from 'firebase/database';
@@ -29,8 +31,15 @@ const getFriendlyErrorMessage = (code: string): string => {
 // Register new user
 export const registerUser = async (data: RegisterFormData): Promise<User> => {
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-        const firebaseUser = userCredential.user;
+        let firebaseUser;
+
+        // If password is dummy or empty, and user is already logged in (Google)
+        if ((!data.password || data.password === 'google-auth-protected') && auth.currentUser) {
+            firebaseUser = auth.currentUser;
+        } else {
+            const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+            firebaseUser = userCredential.user;
+        }
 
         const userData: User = {
             uid: firebaseUser.uid,
@@ -119,6 +128,54 @@ export const loginUser = async (data: LoginFormData): Promise<User> => {
         localStorage.setItem('user', JSON.stringify(userData));
 
         return userData;
+    } catch (error: any) {
+        throw new Error(getFriendlyErrorMessage(error.code || error.message));
+    }
+};
+
+// Google Sign In
+export const signInWithGoogle = async (): Promise<{ firebaseUser: FirebaseUser; userData: User | null }> => {
+    try {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        const firebaseUser = result.user;
+
+        const snapshot = await get(ref(db, 'users/' + firebaseUser.uid));
+
+        if (snapshot.exists()) {
+            const userData = snapshot.val() as User;
+            userData.uid = firebaseUser.uid;
+
+            // Update streak logic (same as login)
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+
+            if (userData.lastActive) {
+                const lastActiveDate = new Date(userData.lastActive);
+                const lastActiveStr = lastActiveDate.toISOString().split('T')[0];
+                const yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                if (lastActiveStr === todayStr) { /* Already active */ }
+                else if (lastActiveStr === yesterdayStr) { userData.streak = (userData.streak || 0) + 1; }
+                else { userData.streak = 1; }
+            } else {
+                userData.streak = 1;
+            }
+
+            userData.lastActive = now.toISOString();
+
+            await update(ref(db, 'users/' + firebaseUser.uid), {
+                lastActive: userData.lastActive,
+                streak: userData.streak
+            });
+
+            localStorage.setItem('user', JSON.stringify(userData));
+            return { firebaseUser, userData };
+        }
+
+        return { firebaseUser, userData: null };
     } catch (error: any) {
         throw new Error(getFriendlyErrorMessage(error.code || error.message));
     }
