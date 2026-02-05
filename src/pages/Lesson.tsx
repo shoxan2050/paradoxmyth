@@ -103,6 +103,18 @@ const LessonPage: React.FC = () => {
                             {lesson.title}
                         </h1>
 
+                        {lesson.videoId && (
+                            <div className="mb-8 rounded-3xl overflow-hidden shadow-2xl aspect-video bg-gray-900 border-4 border-indigo-100/50">
+                                <iframe
+                                    className="w-full h-full"
+                                    src={`https://www.youtube.com/embed/${lesson.videoId}`}
+                                    title={lesson.title}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
+                            </div>
+                        )}
+
                         <div className="text-xl text-gray-600 leading-relaxed mb-10 space-y-4">
                             <p className="font-bold mb-4">Mavzu: {lesson.title}</p>
 

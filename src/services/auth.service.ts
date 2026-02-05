@@ -11,7 +11,8 @@ import {
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { ref, set, update, get } from 'firebase/database';
-import { auth, db } from './firebase';
+import { fetchAndActivate, getString } from 'firebase/remote-config';
+import { auth, db, remoteConfig } from './firebase';
 import type { User, RegisterFormData, LoginFormData } from '../types';
 
 // Error message translations
@@ -178,6 +179,24 @@ export const signInWithGoogle = async (): Promise<{ firebaseUser: FirebaseUser; 
         return { firebaseUser, userData: null };
     } catch (error: any) {
         throw new Error(getFriendlyErrorMessage(error.code || error.message));
+    }
+};
+
+// Check if email is admin
+export const isAdmin = async (email: string): Promise<boolean> => {
+    try {
+        await fetchAndActivate(remoteConfig);
+        const adminEmails = getString(remoteConfig, 'admin_emails');
+        return adminEmails.split(',')
+            .map(e => e.trim().toLowerCase())
+            .includes(email.trim().toLowerCase());
+    } catch (error) {
+        console.error("Error fetching remote config:", error);
+        // Fallback to default if fetch fails
+        const adminEmails = getString(remoteConfig, 'admin_emails');
+        return adminEmails.split(',')
+            .map(e => e.trim().toLowerCase())
+            .includes(email.trim().toLowerCase());
     }
 };
 

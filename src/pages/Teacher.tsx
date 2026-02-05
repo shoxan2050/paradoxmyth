@@ -2,9 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { DbService } from '../services/db.service';
 import { AiService } from '../services/ai.service';
-import { auth } from '../services/firebase';
-import { Link, useNavigate } from 'react-router-dom';
-import type { Subject, User } from '../types';
+import { useNavigate, Link } from 'react-router-dom';
+import { ref, update } from 'firebase/database';
+import { db, auth } from '../services/firebase';
+import type { Subject, User, Lesson } from '../types';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { AIChatButton } from '../components/common/AIChat';
@@ -57,6 +58,67 @@ const Teacher: React.FC = () => {
     const [selectedSubjName, setSelectedSubjName] = useState('');
     const [excelData, setExcelData] = useState<any[]>([]);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+    // Manual Add Lesson State
+    const [isManualLessonOpen, setIsManualLessonOpen] = useState(false);
+    const [newLessonData, setNewLessonData] = useState({
+        title: '',
+        videoUrl: '',
+        homework: '',
+        order: 1
+    });
+
+    const extractVideoId = (url: string): string => {
+        const regex = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+        const match = url.match(regex);
+        const id = (match && match[7].length === 11) ? match[7] : '';
+        if (id) return id;
+
+        // Fallback for live and shorts
+        if (url.includes('/live/')) return url.split('/live/')[1].split('?')[0].substring(0, 11);
+        if (url.includes('/shorts/')) return url.split('/shorts/')[1].split('?')[0].substring(0, 11);
+        return '';
+    };
+
+    const handleAddManualLesson = async () => {
+        if (!selectedSubject || !newLessonData.title.trim()) {
+            toast.error("Ma'lumotlarni to'liq kiriting!");
+            return;
+        }
+
+        const videoId = newLessonData.videoUrl ? extractVideoId(newLessonData.videoUrl) : '';
+        const lessonId = `L-${Date.now()}`;
+
+        const newLesson: Lesson = {
+            id: lessonId,
+            subjectId: selectedSubject.id,
+            title: newLessonData.title,
+            order: Number(newLessonData.order),
+            videoUrl: newLessonData.videoUrl,
+            videoId: videoId,
+            homework: newLessonData.homework,
+            testGenerated: false,
+            uploadedBy: user?.uid,
+            timestamp: Date.now()
+        };
+
+        try {
+            const updates: any = {};
+            updates[`subjects/${selectedSubject.id}/lessons/${lessonId}`] = newLesson;
+
+            // Update path (optional, but good for ordering)
+            const currentPath = selectedSubject.path || [];
+            updates[`subjects/${selectedSubject.id}/path`] = [...currentPath, lessonId];
+
+            await update(ref(db), updates);
+            toast.success("Dars muvaffaqiyatli qo'shildi! ✅");
+            setIsManualLessonOpen(false);
+            setNewLessonData({ title: '', videoUrl: '', homework: '', order: (selectedSubject.lessons ? Object.keys(selectedSubject.lessons).length + 1 : 1) });
+            loadSubjects();
+        } catch (error) {
+            toast.error("Xatolik yuz berdi!");
+        }
+    };
 
     const loadSubjects = useCallback(async () => {
         setLoadingSubjects(true);
@@ -559,9 +621,20 @@ const Teacher: React.FC = () => {
                                     </button>
                                 </div>
                             </div>
-                            <button onClick={() => setIsLessonsModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm text-gray-400 hover:text-gray-600 tracking-tighter">
-                                <span className="text-2xl">×</span>
-                            </button>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => {
+                                        setNewLessonData(prev => ({ ...prev, order: Object.keys(selectedSubject.lessons || {}).length + 1 }));
+                                        setIsManualLessonOpen(true);
+                                    }}
+                                    className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-md"
+                                >
+                                    + Dars qo'shish
+                                </button>
+                                <button onClick={() => setIsLessonsModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm text-gray-400 hover:text-gray-600 tracking-tighter">
+                                    <span className="text-2xl">×</span>
+                                </button>
+                            </div>
                         </div>
                         <div className="p-8 overflow-y-auto flex-grow bg-white">
                             <div className="grid grid-cols-1 gap-4">
@@ -618,6 +691,64 @@ const Teacher: React.FC = () => {
                             <button onClick={() => setIsLessonsModalOpen(false)} className="px-8 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-100 shadow-sm">
                                 Yopish
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Manual Lesson Modal */}
+            {isManualLessonOpen && selectedSubject && (
+                <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl animate-in zoom-in duration-300">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-gray-900">➕ Yangi dars</h2>
+                            <button onClick={() => setIsManualLessonOpen(false)} className="text-gray-400">✕</button>
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-400 uppercase mb-1">Mavzu nomi</label>
+                                <input
+                                    type="text"
+                                    value={newLessonData.title}
+                                    onChange={e => setNewLessonData({ ...newLessonData, title: e.target.value })}
+                                    placeholder="Dars mavzusini kiriting"
+                                    className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition"
+                                />
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-bold text-gray-400 uppercase mb-1">Tartibi</label>
+                                    <input
+                                        type="number"
+                                        value={newLessonData.order}
+                                        onChange={e => setNewLessonData({ ...newLessonData, order: parseInt(e.target.value) })}
+                                        className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition"
+                                    />
+                                </div>
+                                <div className="flex-[2]">
+                                    <label className="block text-sm font-bold text-gray-400 uppercase mb-1">YouTube Video URL</label>
+                                    <input
+                                        type="text"
+                                        value={newLessonData.videoUrl}
+                                        onChange={e => setNewLessonData({ ...newLessonData, videoUrl: e.target.value })}
+                                        placeholder="https://youtu.be/..."
+                                        className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-400 uppercase mb-1">Uyga vazifa</label>
+                                <textarea
+                                    value={newLessonData.homework}
+                                    onChange={e => setNewLessonData({ ...newLessonData, homework: e.target.value })}
+                                    placeholder="Vazifani kiriting..."
+                                    className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition h-32 resize-none"
+                                ></textarea>
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button onClick={() => setIsManualLessonOpen(false)} className="flex-1 py-4 text-gray-500 font-bold hover:bg-gray-100 rounded-2xl transition">Bekor qilish</button>
+                                <button onClick={handleAddManualLesson} className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition">Saqlash</button>
+                            </div>
                         </div>
                     </div>
                 </div>

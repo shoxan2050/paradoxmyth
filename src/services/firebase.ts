@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
+import { getRemoteConfig } from 'firebase/remote-config';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyB-Bp_gjuChFhdGxRTPIb5w4zGS025ITx4",
@@ -16,4 +17,12 @@ const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getDatabase(app);
+export const remoteConfig = getRemoteConfig(app);
+
+// Configure remote config settings
+remoteConfig.settings.minimumFetchIntervalMillis = 3600000; // 1 hour
+remoteConfig.defaultConfig = {
+    'admin_emails': 'baratovboburjon@gmail.com'
+};
+
 export default app;

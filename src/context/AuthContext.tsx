@@ -8,7 +8,8 @@ import {
     getCurrentUser,
     onAuthChange,
     getUserData,
-    signInWithGoogle
+    signInWithGoogle,
+    isAdmin
 } from '../services/auth.service';
 import type { User, LoginFormData, RegisterFormData } from '../types';
 
@@ -43,7 +44,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             console.log('AuthContext: Auth state changed', firebaseUser?.email);
             clearTimeout(timeout);
             if (firebaseUser) {
-                const userData = await getUserData(firebaseUser.uid);
+                let userData = await getUserData(firebaseUser.uid);
+
+                // Double check admin status via Remote Config
+                if (userData && firebaseUser.email) {
+                    const isUserAdmin = await isAdmin(firebaseUser.email);
+                    if (isUserAdmin && userData.role !== 'admin') {
+                        userData = { ...userData, role: 'admin' };
+                    }
+                }
+
                 setUser(userData);
                 if (userData) {
                     localStorage.setItem('user', JSON.stringify(userData));

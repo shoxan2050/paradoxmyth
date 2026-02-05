@@ -53,6 +53,8 @@ export interface Lesson {
     order: number;
     icon?: string;
     content?: string;
+    videoUrl?: string;
+    videoId?: string;
     homework?: string;
     sinf?: number;
     testGenerated: boolean;
